@@ -1,17 +1,42 @@
-# Browser Extension (GF Auto Answer)
+# Google Forms Auto Answer Extension 🤖
 
-This Chrome extension (Manifest V3) runs a content script on Google Forms pages, finds multiple-choice questions, and sends them to the backend server at `https://google-form-server.onrender.com/api/answer`. The server uses Gemini AI to answer the questions and the extension automatically fills in the correct answers.
+A powerful Chrome extension that automatically answers multiple-choice questions on Google Forms using Gemini AI.
 
-## Load into Chrome:
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **"Load unpacked"** and choose this `browser/` folder
-4. Navigate to any Google Form with multiple-choice questions
-5. Click the **"Ask AI"** button that appears in the top-right corner
+## 📦 Installation
 
-## Features:
-- Automatically detects multiple-choice questions on Google Forms
-- Sends questions to Gemini AI via backend server
-- Auto-fills correct answers with a single click
-- Works with deployed backend on Render
-# google_form
+1. **Download** this repository and unzip it to your computer
+2. Open `chrome://extensions` (or equivalent for your browser)
+3. Enable **Developer mode** (toggle in top-right corner)
+4. Click **"Load unpacked"**
+5. Select the `browser/` folder from this project
+6. The extension is now installed!
+
+## 🌐 Supported Browsers
+
+- ✅ **Google Chrome**
+- ✅ **Microsoft Edge**
+- ✅ **Brave**
+- ✅ **Opera / Opera GX**
+
+## ✨ Features
+
+- 🔍 Automatically detects multiple-choice questions on Google Forms
+- 🧠 Powered by Gemini AI for intelligent answers
+- ⚡ Auto-fills correct answers with a single click
+- 🌍 Works with deployed backend on Render
+- 🎯 Simple and intuitive one-button interface
+
+## 🚀 Usage
+
+1. Navigate to any Google Form with multiple-choice questions
+2. Click the **"Ask AI"** button that appears in the top-right corner
+3. Wait a few seconds while the AI processes the questions
+4. Answers will be automatically filled in!
+
+## 🔗 Backend
+
+This extension connects to: `https://google-form-server.onrender.com/api/answer`
+
+---
+
+Made with ❤️ using Gemini AI
