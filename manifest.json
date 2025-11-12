@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GF Auto Answer (Multiple choice)",
+  "version": "0.1.0",
+  "description": "Find Google Forms multiple-choice questions and ask server for the answer, then auto-select it.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://localhost:3001/*","http://127.0.0.1:3001/*","http://localhost:3002/*","http://127.0.0.1:3002/*","http://localhost:3005/*","http://127.0.0.1:3005/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/forms/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
