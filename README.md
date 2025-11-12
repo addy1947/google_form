@@ -5,7 +5,11 @@ A powerful Chrome extension that automatically answers multiple-choice questions
 ## 📦 Installation
 
 1. **Download** this repository and unzip it to your computer
-2. Open `chrome://extensions` (or equivalent for your browser)
+2. Open extensions page in your browser:
+   - **Chrome**: `chrome://extensions`
+   - **Edge**: `edge://extensions`
+   - **Brave**: `brave://extensions`
+   - **Opera**: `opera://extensions`
 3. Enable **Developer mode** (toggle in top-right corner)
 4. Click **"Load unpacked"**
 5. Select the `browser/` folder from this project
