@@ -1,6 +1,8 @@
 # Google Forms Auto Answer Extension 🤖
 
-A powerful Chrome extension that automatically answers multiple-choice questions on Google Forms using Gemini AI.
+## 🎉 Version 2.0 - Released November 20, 2025
+
+A powerful Chrome extension that automatically answers **all types of questions** on Google Forms using Gemini AI.
 
 ## 📦 Installation
 
@@ -24,22 +26,38 @@ A powerful Chrome extension that automatically answers multiple-choice questions
 
 ## ✨ Features
 
-- 🔍 Automatically detects multiple-choice questions on Google Forms
+- 🔍 Automatically detects **all question types** on Google Forms:
+  - ✅ Multiple choice questions
+  - ✅ Checkboxes (multiple select)
+  - ✅ Dropdown menus
+  - ✅ Text input fields
 - 🧠 Powered by Gemini AI for intelligent answers
-- ⚡ Auto-fills correct answers with a single click
+- 🔒 Smart handling of personal information fields (leaves Name, Email, etc. blank)
+- ⚡ Auto-fills answers with a single click
 - 🌍 Works with deployed backend on Render
 - 🎯 Simple and intuitive one-button interface
 
 ## 🚀 Usage
 
-1. Navigate to any Google Form with multiple-choice questions
+1. Navigate to any Google Form
 2. Click the **"Ask AI"** button that appears in the top-right corner
 3. Wait a few seconds while the AI processes the questions
-4. Answers will be automatically filled in!
+4. All answers will be automatically filled in!
+5. Manually fill personal information fields (Name, Email, etc.) that were left blank
 
 ## 🔗 Backend
 
 This extension connects to: `https://google-form-server.onrender.com/api/answer`
+
+---
+
+## 🎯 Mission
+
+To empower students and professionals by automating repetitive form-filling tasks, allowing them to focus on learning and critical thinking rather than mundane data entry.
+
+## 🔮 Vision
+
+Creating a future where AI assists humans in everyday tasks, making education more accessible and efficient while promoting ethical use of technology for productivity enhancement.
 
 ---
 
