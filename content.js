@@ -1,70 +1,84 @@
 const SERVER_URL = 'https://google-form-server.onrender.com/api/answer';
 
-function findAllMultipleChoiceQuestions() {
+function findAllQuestions() {
   const questions = [];
-  const candidates = Array.from(
-    document.querySelectorAll('input[type="radio"], div[role="radio"], .freebirdFormviewerComponentsQuestionRadioChoice')
+  const allContainers = Array.from(
+    document.querySelectorAll('div[role="listitem"], .freebirdFormviewerComponentsQuestionContainer, .freebirdFormviewerComponentsQuestionBaseRoot')
   );
   const seen = new Set();
 
-  for (const cand of candidates) {
-    const container =
-      cand.closest('div[role="listitem"], .freebirdFormviewerComponentsQuestionContainer, .freebirdFormviewerComponentsQuestionBaseRoot') ||
-      cand.closest('div');
-    if (!container || seen.has(container)) continue;
+  for (const container of allContainers) {
+    if (seen.has(container)) continue;
     seen.add(container);
 
-    const optionEls = Array.from(
-      container.querySelectorAll('div[role="radio"], input[type="radio"], .freebirdFormviewerComponentsQuestionRadioChoice, .exportLabel, label')
-    );
+    // Get question text
+    const qTextEl =
+      container.querySelector('div[role="heading"], .freebirdFormviewerComponentsQuestionBaseTitle') ||
+      container.querySelector('h2, h3');
+    const question = qTextEl ? (qTextEl.innerText || '').trim() : '';
 
-    const options = optionEls
-      .map(el => {
-        if (!el) return '';
-        const tag = el.tagName || '';
-        
-        // For div[role="radio"], use aria-label or data-value attribute
+    if (!question) continue;
+
+    // Get question ID
+    let qid = null;
+    if (qTextEl && qTextEl.id) {
+      qid = qTextEl.id.trim();
+    } else if (container.id) {
+      qid = container.id.trim();
+    } else {
+      const insideInput = container.querySelector('input[name]');
+      if (insideInput && insideInput.name) qid = insideInput.name.trim();
+    }
+
+    if (!qid) continue;
+
+    // Detect question type
+    const radioInputs = container.querySelectorAll('input[type="radio"]');
+    const checkboxInputs = container.querySelectorAll('input[type="checkbox"]');
+    const textInputs = container.querySelectorAll('input[type="text"], textarea');
+    const selectInputs = container.querySelectorAll('select');
+    const divRadios = container.querySelectorAll('div[role="radio"]');
+    const divCheckboxes = container.querySelectorAll('div[role="checkbox"]');
+
+    let type = 'unknown';
+    let options = [];
+
+    // Multiple choice (radio buttons)
+    if (radioInputs.length > 0 || divRadios.length > 0) {
+      type = 'multiple_choice';
+      const optionEls = Array.from(divRadios.length > 0 ? divRadios : radioInputs);
+      options = optionEls.map(el => {
         if (el.getAttribute && el.getAttribute('role') === 'radio') {
           return el.getAttribute('aria-label') || el.getAttribute('data-value') || '';
         }
-        
-        // For input elements, try to find associated label
-        if (tag.toUpperCase() === 'INPUT') {
-          const id = el.id;
-          if (id) {
-            const lab = container.querySelector(`label[for="${id}"]`);
-            if (lab && lab.innerText) return lab.innerText.trim();
-          }
-          const p = el.closest('div[role="radio"], .exportLabel') || el.parentElement || el.closest('div');
-          return p ? (p.innerText || '').trim() : '';
+        return getRadioLabel(el, container);
+      }).filter(Boolean);
+    }
+    // Checkboxes
+    else if (checkboxInputs.length > 0 || divCheckboxes.length > 0) {
+      type = 'checkbox';
+      const optionEls = Array.from(divCheckboxes.length > 0 ? divCheckboxes : checkboxInputs);
+      options = optionEls.map(el => {
+        if (el.getAttribute && el.getAttribute('role') === 'checkbox') {
+          return el.getAttribute('aria-label') || el.getAttribute('data-value') || '';
         }
-        return (el.innerText || '').trim();
-      })
-      .filter(Boolean);
+        return getRadioLabel(el, container);
+      }).filter(Boolean);
+    }
+    // Dropdown
+    else if (selectInputs.length > 0) {
+      type = 'dropdown';
+      const select = selectInputs[0];
+      options = Array.from(select.options).map(opt => opt.text.trim()).filter(Boolean);
+    }
+    // Text input
+    else if (textInputs.length > 0) {
+      type = 'text';
+      options = [];
+    }
 
-    if (options.length > 0) {
-      const qTextEl =
-        container.querySelector('div[role="heading"], .freebirdFormviewerComponentsQuestionBaseTitle') ||
-        container.querySelector('h2, h3');
-      const question = qTextEl ? (qTextEl.innerText || '').trim() : '';
-
-      // Get the actual DOM id from the heading element or container
-      let qid = null;
-      if (qTextEl && qTextEl.id) {
-        qid = qTextEl.id.trim();
-      } else if (container.id) {
-        qid = container.id.trim();
-      } else {
-        const insideInput = container.querySelector('input[type="radio"][name]');
-        if (insideInput && insideInput.name) qid = insideInput.name.trim();
-      }
-      
-      // Skip questions without a real ID
-      if (!qid) {
-        continue;
-      }
-
-      questions.push({ id: qid, question, options });
+    if (type !== 'unknown') {
+      questions.push({ id: qid, question, type, options });
     }
   }
 
@@ -75,7 +89,7 @@ function normalizeText(s) {
   return (s || '').toLowerCase().replace(/\s+/g, ' ').replace(/[^\w\d ]+/g, '').trim();
 }
 
-function fillAnswerForQuestion(questionId, answer) {
+function fillAnswerForQuestion(questionId, answer, questionType) {
   if (!questionId || !answer) {
     return false;
   }
@@ -96,11 +110,81 @@ function fillAnswerForQuestion(questionId, answer) {
     return false;
   }
 
-  // Get all radio inputs in this container
+  const normalizedAnswer = normalizeText(answer);
+
+  // Handle text inputs
+  if (questionType === 'text') {
+    const textInputs = container.querySelectorAll('input[type="text"], textarea');
+    if (textInputs.length > 0) {
+      const input = textInputs[0];
+      input.value = answer;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    }
+    return false;
+  }
+
+  // Handle dropdown
+  if (questionType === 'dropdown') {
+    const selects = container.querySelectorAll('select');
+    if (selects.length > 0) {
+      const select = selects[0];
+      for (let i = 0; i < select.options.length; i++) {
+        const optText = normalizeText(select.options[i].text);
+        if (optText === normalizedAnswer || 
+            optText.includes(normalizedAnswer) || 
+            normalizedAnswer.includes(optText)) {
+          select.selectedIndex = i;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Handle checkboxes
+  if (questionType === 'checkbox') {
+    const answers = Array.isArray(answer) ? answer : [answer];
+    const checkboxInputs = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+    const divCheckboxes = Array.from(container.querySelectorAll('div[role="checkbox"]'));
+    let filled = false;
+
+    for (const ans of answers) {
+      const normAns = normalizeText(ans);
+      
+      for (const checkbox of checkboxInputs) {
+        const label = getRadioLabel(checkbox, container);
+        const normalizedLabel = normalizeText(label);
+        if (normalizedLabel === normAns || 
+            normalizedLabel.includes(normAns) || 
+            normAns.includes(normalizedLabel)) {
+          checkbox.checked = true;
+          checkbox.click();
+          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          filled = true;
+        }
+      }
+
+      for (const div of divCheckboxes) {
+        const label = div.getAttribute('aria-label') || div.getAttribute('data-value') || '';
+        const normalizedLabel = normalizeText(label);
+        if (label && (normalizedLabel === normAns || 
+            normalizedLabel.includes(normAns) || 
+            normAns.includes(normalizedLabel))) {
+          div.click();
+          div.dispatchEvent(new Event('click', { bubbles: true }));
+          filled = true;
+        }
+      }
+    }
+    return filled;
+  }
+
+  // Handle multiple choice (radio buttons)
   const radioInputs = Array.from(container.querySelectorAll('input[type="radio"]'));
   const divRadios = Array.from(container.querySelectorAll('div[role="radio"]'));
-
-  const normalizedAnswer = normalizeText(answer);
 
   // Try <input type="radio"> with fuzzy/normalized matching
   for (const radio of radioInputs) {
@@ -142,11 +226,6 @@ function fillAnswerForQuestion(questionId, answer) {
       return true;
     }
   }
-
-  // Log available options for debugging
-  const availableOptions = radioInputs.map(r => getRadioLabel(r, container)).concat(
-    divRadios.map(d => d.getAttribute('aria-label') || d.getAttribute('data-value') || '')
-  ).filter(Boolean);
   
   return false;
 }
@@ -183,7 +262,7 @@ function createButton() {
     const originalText = btn.textContent;
     btn.textContent = 'Sending...';
 
-    const qs = findAllMultipleChoiceQuestions();
+    const qs = findAllQuestions();
     if (!qs || qs.length === 0) {
       btn.textContent = 'No questions';
       setTimeout(() => {
@@ -210,9 +289,10 @@ function createButton() {
         for (const result of data.results) {
           const id = result.questionId;
           const ans = result.answer || result.gemini?.parsed?.answer;
+          const qType = result.questionType || 'multiple_choice';
           
           if (id && ans) {
-            const filled = fillAnswerForQuestion(id, ans);
+            const filled = fillAnswerForQuestion(id, ans, qType);
             if (filled) {
               filledCount++;
             }
