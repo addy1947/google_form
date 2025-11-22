@@ -1,14 +1,15 @@
 {
-  "icons": {
-    "16": "icons/12.png",
-    "32": "icons/12.png",
-    "48": "icons/12.png",
-    "128": "icons/12.png"
-  },
+    "icons": {
+      "16": "icons/11.png",
+      "32": "icons/11.png",
+      "48": "icons/11.png",
+      "128": "icons/11.png"
+    },
   "manifest_version": 3,
-  "name": "Google Form AI Filler",
+  "name": "AI Filler for Google Forms",
   "version": "2.1.0",
   "description": "Automatically detects and answers all question types on Google Forms by querying a local AI server.",
+  
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["http://localhost:3001/*","http://127.0.0.1:3001/*","http://localhost:3002/*","http://127.0.0.1:3002/*","http://localhost:3005/*","http://127.0.0.1:3005/*"],
   "content_scripts": [
