@@ -349,7 +349,20 @@ function createButton() {
   };
 
   const updateBtn = (text, iconKey) => {
-    btn.innerHTML = `${icons[iconKey]} <span>${text}</span>`;
+    btn.textContent = ''; // Clear current content
+
+    // Create icon element
+    const iconContainer = document.createElement('div');
+    iconContainer.innerHTML = icons[iconKey];
+    const iconSvg = iconContainer.firstElementChild;
+    if (iconSvg) {
+      btn.appendChild(iconSvg);
+    }
+
+    // Create text element
+    const textSpan = document.createElement('span');
+    textSpan.textContent = text;
+    btn.appendChild(textSpan);
   };
 
   updateBtn('Auto Fill', 'sparkle');
@@ -436,14 +449,14 @@ function createButton() {
 
     btn.disabled = true;
     btn.classList.remove('gf-pulse');
-    const originalContent = btn.innerHTML;
+    // const originalContent = btn.innerHTML; // Removed to avoid innerHTML usage
     updateBtn('Thinking...', 'loading');
 
     const qs = findAllQuestions();
     if (!qs || qs.length === 0) {
       updateBtn('No questions', 'error');
       setTimeout(() => {
-        btn.innerHTML = originalContent;
+        updateBtn('Auto Fill', 'sparkle');
         btn.disabled = false;
       }, 1500);
       return;
@@ -487,7 +500,7 @@ function createButton() {
 
     setTimeout(() => {
       btn.disabled = false;
-      btn.innerHTML = originalContent;
+      updateBtn('Auto Fill', 'sparkle');
       btn.classList.add('gf-pulse');
     }, 3000);
   });
