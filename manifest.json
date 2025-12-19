@@ -9,11 +9,8 @@
   "name": "AI Filler for Google Forms",
   "version": "2.1.0",
   "description": "Automatically detects and answers all question types on Google Forms by querying an AI server.",
-  "permissions": [
-    "activeTab"
-  ],
   "host_permissions": [
-    "https://google-form-server.onrender.com/*"
+    "https://google-form-server-vercel.vercel.app/"
   ],
   "content_scripts": [
     {

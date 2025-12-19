@@ -1,4 +1,4 @@
-const SERVER_URL = 'https://google-form-server.onrender.com/api/answer';
+const SERVER_URL = 'https://google-form-server-vercel.vercel.app/api/answer';
 
 function findAllQuestions() {
   const questions = [];
